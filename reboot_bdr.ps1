@@ -1,3 +1,22 @@
+function fncCheckService{
+param($ServiceName)
+
+$timeout = new-timespan -Minutes 1
+$sw = [diagnostics.stopwatch]::StartNew()
+while ($sw.elapsed -lt $timeout){
+    $arrService = Get-Service -Name $ServiceName
+	write-host $arrService.Status
+	if ($arrService.Status -eq "Stopped"){
+		write-host "Service has been stopped"
+        return
+        }
+ 
+    start-sleep -seconds 5
+}
+ 
+write-host "Service did not stop in a timely manner"
+}
+
 $ProcessActive = Get-Process dwm1 -ErrorAction SilentlyContinue
 if($ProcessActive -eq $null)
 {
@@ -9,7 +28,7 @@ if($ProcessActive -eq $null)
     {
         #Stop Replay Core service, wait for it to shutdown, and send ok to reboot status back to Kaseya
         #Stop-Service ReplayServer64
-        fncCheckService -ServiceName "wudfsvc"
+        fncCheckService -ServiceName "TermService"
 
     }
     elseif($BDR_Type_AppAssure5 -eq "True")
@@ -30,14 +49,3 @@ else
 	Write-host User Logged On
 }
 
-function fncCheckService{
-param($ServiceName)
-$arrService = Get-Service -Name $ServiceName
-$i = 0
-write-host $i
-while(($arrService.Status -eq "Running") -or ($i -lt 1))
-{
-write-host "Service is still running"
-$counter++
-}
-}
